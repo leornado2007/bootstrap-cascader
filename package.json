@@ -1,0 +1,33 @@
+{
+  "name": "bootstrap-cascader",
+  "version": "0.0.1",
+  "description": "bootstrap jquery cascade selector",
+  "main": "dist/js/bootstrap-cascader.js",
+  "scripts": {},
+  "author": "leornado <leornado@126.com>",
+  "homepage": "https://silviomoreto.github.io/bootstrap-select",
+  "license": "MIT",
+  "keywords": [
+    "bootstrap",
+    "jquery",
+    "cascader",
+    "select"
+  ],
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^5.0.0",
+    "gulp-clean": "^0.4.0",
+    "gulp-connect": "^5.5.0",
+    "gulp-html-replace": "^1.6.2",
+    "gulp-htmlmin": "^4.0.0",
+    "gulp-load-plugins": "^1.5.0",
+    "gulp-open": "^3.0.1",
+    "gulp-rename": "^1.2.3",
+    "gulp-rev": "^8.1.1",
+    "gulp-sass": "^4.0.1",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-uglify": "^3.0.0",
+    "gulp-usemin": "^0.3.29",
+    "pump": "^3.0.0"
+  }
+}

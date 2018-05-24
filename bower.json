@@ -1,0 +1,33 @@
+{
+  "name": "bootstrap-cascader",
+  "description": "bootstrap jquery cascade selector",
+  "main": "dist/js/bootstrap-cascader.js",
+  "authors": [
+    "leornado <leornado@126.com>"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "bootstrap",
+    "jquery",
+    "cascader",
+    "select"
+  ],
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "gulpfile.js",
+    "package.json"
+  ],
+  "dependencies": {
+    "jquery": "~1.11.1",
+    "jquery-migrate": "~1.2.1",
+    "bootstrap": "3.3.7",
+    "html5shiv": "3.7.3",
+    "respond": "1.4.2"
+  },
+  "devDependencies": {
+    "gulp": "^4.0.0"
+  }
+}
