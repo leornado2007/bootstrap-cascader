@@ -10,7 +10,6 @@ var uglify = require('gulp-uglify');
 var htmlmin = require('gulp-htmlmin');
 var rename = require('gulp-rename');
 var usemin = require('gulp-usemin');
-var rev = require('gulp-rev');
 var autoprefixer = require('gulp-autoprefixer');
 var open = require('gulp-open');
 var concat = require('gulp-concat');
@@ -27,13 +26,13 @@ var sassTask = function (usemin) {
     sourcemaps.init(), autoprefixer({browsers: ['last 2 versions', 'ie 6-8']}),
     replace(/iconfont\.([a-z]{3})/g, name + '.$1'),
     replace(/font-family:\s*\"iconfont\"/g, 'font-family: "' + name + '"'),
-    rename({suffix: '.min'}), rev(), sourcemaps.write('./')];
+    rename({suffix: '.min'}), sourcemaps.write('./')];
   return usemin ? tasks : tasks.concat([gulp.dest(siteDir), connect.reload()]);
 };
 
 var jsTask = function (usemin, path) {
   var tasks = [gulp.src(path || paths.js.src), sourcemaps.init(), uglify({ie8: true}),
-    rename({suffix: '.min'}), rev(), sourcemaps.write('./')];
+    rename({suffix: '.min'}), sourcemaps.write('./')];
   return usemin ? tasks : tasks.concat([gulp.dest(siteDir), connect.reload()]);
 };
 

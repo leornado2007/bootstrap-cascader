@@ -9,8 +9,8 @@
     dropUp: false,
     lazy: false,
     openOnHover: false,
-    onChange: $.noop,
-    onSelect: $.noop,
+    openOnHoverDelay: 100,
+    openOnHoverDelay4Lazy: 200,
     isSelectable: function (item) {
       return item && item.loaded && (!item.children || item.children.length <= 0 || item.selectable);
     }
@@ -64,12 +64,13 @@
       panel.scrollToOpened();
     };
 
-    this.isMatchedSelectedItems = function (item) {
+    this.isMatchedSelectedItems = function (item, withParents) {
       var currItem = item;
       for (var j = item.level - 1; j >= 0; j--) {
         var selectedItem = csd.selectedItems[j], selectedItemCode = selectedItem.code || selectedItem.c;
         var currItemData = currItem.originData, currItemCode = currItemData.code || currItemData.c;
         if (selectedItemCode != currItemCode) return false;
+        if (withParents === false) return true;
         currItem = currItem.parent;
       }
       return true;
@@ -84,6 +85,10 @@
           panelEl.scrollTop(top);
         }
       }
+    };
+
+    this.destroy = function () {
+      panel.panelEl.remove();
     };
 
     var handler = function (item, itemEl, selectItem) {
@@ -131,15 +136,21 @@
       csd.panels[csd.panels.length - 1].panelEl.addClass('last-child');
     }
 
+    var isParentAllMatched = false, hasMatchedChildren = false;
+    if (csd.selectedItems.length > data.level) isParentAllMatched = panel.isMatchedSelectedItems(data);
+
     $.each(data.children, function (i, item) {
       var itemEl = $(TPLS.dropdownItemTpl).appendTo(panel.panelEl), itemData = item.originData;
       var itemName = itemData.name || itemData.n, itemCode = itemData.code || itemData.c;
       itemEl.data("cascaderItem", item).attr('code', itemCode).attr('title', itemName).find('.text').text(itemName);
 
-      itemEl.on('selectItem click', function () {
-        handler(item, itemEl, true);
-      }).on('openDropdown', function () {
-        handler(item, itemEl);
+      itemEl.on({
+        'selectItem click': function () {
+          handler(item, itemEl, true);
+        },
+        'openDropdown': function () {
+          handler(item, itemEl);
+        }
       });
 
       if (csd.params.openOnHover) {
@@ -147,27 +158,31 @@
           if (csd.openTimeout) clearTimeout(csd.openTimeout);
           csd.openTimeout = setTimeout(function () {
             handler(item, itemEl);
-          }, csd.params.lazy ? 200 : 100);
+          }, csd.params.lazy ? csd.params.openOnHoverDelay4Lazy : csd.params.openOnHoverDelay);
         });
       }
 
       if (item.loaded && (!item.children || item.children.length <= 0)) itemEl.addClass('no-child');
 
       // update selected items view state
-      if (csd.selectedItems.length >= item.level && panel.isMatchedSelectedItems(item)) {
-        if (csd.selectedItems.length > item.level) {
-          handler(item, itemEl, false);
-        } else {
-          $.each(csd.selectedItems, function (j, selectedItem) {
-            csd.panels[j].setSelected(selectedItem, j < csd.selectedItems.length - 1);
-          });
+      if (csd.selectedItems.length >= item.level && isParentAllMatched) {
+        if (panel.isMatchedSelectedItems(item, false)) {
+          hasMatchedChildren = true;
+          if (csd.selectedItems.length > item.level) {
+            handler(item, itemEl, false);
+          } else {
+            if (csd.selectedItems.length == csd.panels.length)
+              $.each(csd.selectedItems, function (j, selectedItem) {
+                csd.panels[j].setSelected(selectedItem, j < csd.selectedItems.length - 1);
+              });
+            csd.inited(), csd.reloaded();
+          }
         }
       }
     });
 
-    this.destroy = function () {
-      panel.panelEl.remove();
-    };
+    if ((!csd.isInited || csd.reloading) && csd.selectedItems.length > data.level && !hasMatchedChildren && csd.params.lazy)
+      csd.isInited ? csd.reloaded() : csd.inited();
   };
 
   // Cascader
@@ -272,8 +287,9 @@
       updateBtnText(names.join(csd.params.splitChar));
       csd.close();
 
-      csd.tryFireOnChange(oldSelectedItems, csd.getValue());
-      csd.params.onSelect.call(csd);
+      var newItems = csd.getValue();
+      csd.tryFireOnChange(oldSelectedItems, newItems);
+      csd.params.el.trigger('bs.cascader.select', [newItems]);
     };
 
     // tryFireOnChange
@@ -290,7 +306,7 @@
         });
         if (allCodesSame) fire = false;
       }
-      if (fire) csd.params.onChange.call(csd, oldItems, newItems);
+      if (fire) csd.params.el.trigger('bs.cascader.change', [oldItems, newItems]);
     };
 
     // close
@@ -347,6 +363,32 @@
       return csd.readonly;
     };
 
+    // reload
+    csd.reload = function () {
+      csd.reloading = true, csd.data = {childMap: {}, children: [], loaded: false, level: 0};
+      csd.loadData().then(function () {
+        csd.refreshPanels(1, csd.data);
+        if (csd.params.value) csd.setValue(csd.params.value);
+        if (!csd.params.lazy || !csd.params.value) csd.reloaded();
+      });
+    };
+
+    // reloaded
+    csd.reloaded = function () {
+      if (!csd.reloading) return;
+
+      csd.reloading = false;
+      csd.params.el.trigger('bs.cascader.reloaded');
+    };
+
+    // inited
+    csd.inited = function () {
+      if (csd.isInited) return;
+
+      csd.isInited = true;
+      csd.params.el.trigger('bs.cascader.inited');
+    };
+
     // loadData
     csd.loadData = function (item) {
       // get opened items
@@ -380,13 +422,13 @@
       csd.el.insertAfter(params.el);
       params.el.hide();
     } else csd.el.appendTo(params.el);
-    params.el = csd.el;
     initBtn();
     if (csd.params.readonly) csd.setReadonly(true);
 
     csd.loadData().always(function () {
       csd.refreshPanels(1, csd.data);
       if (csd.params.value) csd.setValue(csd.params.value);
+      if (!csd.params.lazy || !csd.params.value) csd.inited();
     });
 
     $('html').on('click', htmlClickHandler);

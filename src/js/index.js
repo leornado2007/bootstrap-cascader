@@ -27,14 +27,12 @@ $(function () {
   });
 
   $('#cascader2').bsCascader({
-    openOnHover: true,
     value: [{c: 'qian', n: '钱'}, {c: 'ji', n: '己'}, {c: 'h', n: 'H'}],
     loadData: function (openedItems, callback) {
       callback(localData);
-    },
-    onChange: function (oldValue, newValue) {
-      $('#cascaderValue2').text(JSON.stringify(newValue));
     }
+  }).on('bs.cascader.change', function (oldValue, newValue) {
+    $('#cascaderValue2').text(JSON.stringify(newValue));
   });
 
   var NUMS = '零一二三四五六七八九'.split('');
@@ -73,10 +71,19 @@ $(function () {
     dropUp: true,
     value: [{"code": "8", "name": "八"}, {"code": "81", "name": "八一"},
       {"code": "818", "name": "八一八"}, {"code": "8187", "name": "八一八七"}],
-    loadData: mockLazyLoadFn(),
-    onChange: function (oldValue, newValue) {
+    loadData: mockLazyLoadFn()
+  }).on({
+    'bs.cascader.change bs.cascader.select': function (oldValue, newValue) {
       $('#cascaderValue4').text(JSON.stringify(newValue));
+    },
+    'bs.cascader.inited bs.cascader.reloaded': function () {
+      $('#cascader4Reload').removeClass('disabled');
     }
+  });
+
+  $('#cascader4Reload').addClass('disabled').click(function () {
+    $(this).addClass('disabled');
+    $('#cascader4').bsCascader('reload');
   });
 
 });
