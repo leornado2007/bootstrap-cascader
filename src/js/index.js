@@ -70,6 +70,7 @@ $(function () {
   $('#cascader4').bsCascader({
     splitChar: ' / ',
     lazy: true,
+    dropUp: true,
     value: [{"code": "8", "name": "八"}, {"code": "81", "name": "八一"},
       {"code": "818", "name": "八一八"}, {"code": "8187", "name": "八一八七"}],
     loadData: mockLazyLoadFn(),
