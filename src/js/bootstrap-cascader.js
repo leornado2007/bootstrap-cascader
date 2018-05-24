@@ -11,7 +11,7 @@
     openOnHover: false,
     onChange: $.noop,
     onSelect: $.noop,
-    selectable: function (item) {
+    isSelectable: function (item) {
       return item && item.loaded && (!item.children || item.children.length <= 0 || item.selectable);
     }
   };
@@ -43,7 +43,7 @@
 
     var panel = this;
     this.selectItem = function (item, itemEl) {
-      var selectable = csd.params.selectable.call(csd, item);
+      var selectable = csd.params.isSelectable.call(csd, item);
       if (selectable) csd.selectItem(itemEl);
     };
 
@@ -273,6 +273,7 @@
       csd.close();
 
       csd.tryFireOnChange(oldSelectedItems, csd.getValue());
+      csd.params.onSelect.call(csd);
     };
 
     // tryFireOnChange
@@ -289,7 +290,7 @@
         });
         if (allCodesSame) fire = false;
       }
-      if (fire) csd.params.onChange(oldItems, newItems);
+      if (fire) csd.params.onChange.call(csd, oldItems, newItems);
     };
 
     // close
