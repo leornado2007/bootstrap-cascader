@@ -3,7 +3,7 @@
 var gulp = require('gulp'), pump = require('pump');
 var $ = require('gulp-load-plugins')({DEBUG: true});
 
-var distDir = './dist', srcDir = './src', paths = {
+var name = 'bootstrap-cascader', siteDir = './site', distDir = './dist', srcDir = './src', paths = {
   html: {src: [srcDir + '/**/*.html']},
   js: {src: [srcDir + '/**/*.js']},
   sass: {src: [srcDir + '/**/*.scss']}
@@ -13,16 +13,20 @@ var sassTask = function (usemin) {
   var tasks = [gulp.src(paths.sass.src), $.sass({outputStyle: 'compressed'}),
     $.sourcemaps.init(), $.autoprefixer({browsers: ['last 2 versions', 'ie 6-8']}),
     $.rename({suffix: '.min'}), $.rev(), $.sourcemaps.write('./')];
-  return usemin ? tasks : tasks.concat([gulp.dest(distDir), $.connect.reload()]);
+  return usemin ? tasks : tasks.concat([gulp.dest(siteDir), $.connect.reload()]);
 };
 
 var jsTask = function (usemin, path) {
-  var tasks = [gulp.src(path || paths.js.src), /*$.sourcemaps.init(), $.uglify({ie8: true}),*/
-    $.rename({suffix: '.min'}), $.rev()/*, $.sourcemaps.write('./')*/];
-  return usemin ? tasks : tasks.concat([gulp.dest(distDir), $.connect.reload()]);
+  var tasks = [gulp.src(path || paths.js.src), $.sourcemaps.init(), $.uglify({ie8: true}),
+    $.rename({suffix: '.min'}), $.rev(), $.sourcemaps.write('./')];
+  return usemin ? tasks : tasks.concat([gulp.dest(siteDir), $.connect.reload()]);
 };
 
-gulp.task('clean', function (cb) {
+gulp.task('clean-site', function (cb) {
+  pump([gulp.src(siteDir, {read: false}), $.clean()], cb);
+});
+
+gulp.task('clean-dist', function (cb) {
   pump([gulp.src(distDir, {read: false}), $.clean()], cb);
 });
 
@@ -32,7 +36,7 @@ gulp.task('html', function (cb) {
       scss: sassTask(true), vendorCss: sassTask(true),
       html: [$.htmlmin({collapseWhitespace: false})],
       js: jsTask(true), vendorJs: jsTask(true), demoJs: jsTask(true)
-    }), gulp.dest(distDir), $.connect.reload()], cb);
+    }), gulp.dest(siteDir), $.connect.reload()], cb);
 });
 
 gulp.task('sass', function (cb) {
@@ -44,28 +48,33 @@ gulp.task('js', function (cb) {
 });
 
 gulp.task('fonts', function () {
-  gulp.src('bower_components/bootstrap/fonts/*').pipe(gulp.dest(distDir + '/fonts'));
-  gulp.src('resources/iconfont/*.{eot,svg,ttf,woff}').pipe(gulp.dest(distDir + '/css'));
+  gulp.src('bower_components/bootstrap/fonts/*').pipe(gulp.dest(siteDir + '/fonts'));
+  gulp.src('resources/iconfont/*.{eot,svg,ttf,woff}').pipe(gulp.dest(siteDir + '/css'));
 });
 
-gulp.task('watch', ['build'], function () {
+gulp.task('watch', ['site'], function () {
   gulp.watch(paths.html.src, ['html']);
   gulp.watch(paths.sass.src, ['sass', 'html']);
   gulp.watch([paths.js.src, 'gulpfile.js'], ['js', 'html']);
 });
 
 gulp.task('server', ['watch'], function () {
-  var server = $.connect.server({root: distDir, livereload: true});
+  var server = $.connect.server({root: siteDir, livereload: true});
   return gulp.src('.').pipe($.open({uri: 'http://' + server.host + ':' + server.port}));
 });
 
-gulp.task('build', ['clean'], function () {
+gulp.task('site', ['clean-site'], function () {
   gulp.start(['sass', 'fonts', 'js', 'html']);
 });
 
-gulp.task('dist', ['clean'], function (cb) {
-  gulp.start(['sass']);
-  pump(jsTask(false, srcDir + '/**/bootstrap-cascader.js'), cb);
+gulp.task('dist', ['clean-dist'], function () {
+  pump([gulp.src(paths.sass.src), $.sass({outputStyle: 'compressed'}), gulp.src('resources/**/iconfont.css'),
+    $.sourcemaps.init(), $.concat(name + '.css'), $.autoprefixer({browsers: ['last 2 versions', 'ie 6-8']}),
+    $.rename({suffix: '.min'}), $.rev(), $.sourcemaps.write('./'), gulp.dest(distDir + '/css')]);
+
+  pump([gulp.src('src/**/' + name + '.js'), $.sourcemaps.init(), $.uglify({ie8: true}),
+    $.rename({suffix: '.min'}), $.rev(), $.sourcemaps.write('./'), gulp.dest(distDir)]);
+
   gulp.src('resources/iconfont/*.{eot,svg,ttf,woff}').pipe(gulp.dest(distDir + '/css'));
 });
 

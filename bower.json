@@ -12,7 +12,7 @@
     "cascader",
     "select"
   ],
-  "homepage": "",
+  "homepage": "https://github.com/leornado2007/bootstrap-cascader.git",
   "ignore": [
     "**/.*",
     "node_modules",

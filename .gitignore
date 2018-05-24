@@ -1,0 +1,8 @@
+# OS or Editor folders
+.svn
+.idea
+.git
+
+# Folders to ignore
+node_modules
+bower_components
