@@ -50,14 +50,12 @@ gulp.task('js', function (cb) {
 });
 
 gulp.task('fonts', function (cb) {
-  pump([gulp.src('bower_components/bootstrap/fonts/*'),
-    gulp.dest(siteDir + '/fonts'),
-
-    gulp.src('resources/iconfont/*.{eot,svg,ttf,woff}'),
-    $.rename(function (path) {
-      path.basename = name;
-    }),
-    gulp.dest(siteDir + '/css')], cb);
+  gulp.src('bower_components/bootstrap/fonts/*').pipe(gulp.dest(siteDir + '/fonts'));
+  gulp.src('resources/iconfont/*.{eot,svg,ttf,woff}')
+      .pipe($.rename(function (path) {
+        path.basename = name;
+      }))
+      .pipe(gulp.dest(siteDir + '/css'));
 });
 
 gulp.task('watch', ['site'], function () {
@@ -76,31 +74,32 @@ gulp.task('site', ['clean-site'], function () {
 });
 
 gulp.task('dist', ['clean-dist'], function (cb) {
-  pump([gulp.src(paths.sass.src.concat(['resources/**/iconfont.css'])),
-    $.sass({outputStyle: 'compressed'}),
-    $.sourcemaps.init(),
-    $.concat(name + '.css'),
-    $.autoprefixer({browsers: ['last 2 versions', 'ie 6-8']}),
-    $.replace(/iconfont\.([a-z]{3})/g, name + '.$1'),
-    $.replace(/font-family:\s*\"iconfont\"/g, 'font-family: "' + name + '"'),
-    $.rename({suffix: '.min'}),
-    $.rev(),
-    $.sourcemaps.write('./'),
-    gulp.dest(distDir + '/css'),
 
-    gulp.src('src/**/' + name + '.js'),
-    $.sourcemaps.init(),
-    $.uglify({ie8: true}),
-    $.rename({suffix: '.min'}),
-    $.rev(),
-    $.sourcemaps.write('./'),
-    gulp.dest(distDir),
+  gulp.src(paths.sass.src.concat(['resources/**/iconfont.css']))
+      .pipe($.sass({outputStyle: 'compressed'}))
+      .pipe($.sourcemaps.init())
+      .pipe($.concat(name + '.css'))
+      .pipe($.autoprefixer({browsers: ['last 2 versions', 'ie 6-8']}))
+      .pipe($.replace(/iconfont\.([a-z]{3})/g, name + '.$1'))
+      .pipe($.replace(/font-family:\s*\"iconfont\"/g, 'font-family: "' + name + '"'))
+      .pipe($.rename({suffix: '.min'}))
+      .pipe($.rev())
+      .pipe($.sourcemaps.write('./'))
+      .pipe(gulp.dest(distDir + '/css'));
 
-    gulp.src('resources/iconfont/*.{eot,svg,ttf,woff}'),
-    $.rename(function (path) {
-      path.basename = name;
-    }),
-    gulp.dest(distDir + '/css')], cb);
+  gulp.src('src/**/' + name + '.js')
+      .pipe($.sourcemaps.init())
+      .pipe($.uglify({ie8: true}))
+      .pipe($.rename({suffix: '.min'}))
+      .pipe($.rev())
+      .pipe($.sourcemaps.write('./'))
+      .pipe(gulp.dest(distDir));
+
+  gulp.src('resources/iconfont/*.{eot,svg,ttf,woff}')
+      .pipe($.rename(function (path) {
+        path.basename = name;
+      }))
+      .pipe(gulp.dest(distDir + '/css'));
 
 });
 
