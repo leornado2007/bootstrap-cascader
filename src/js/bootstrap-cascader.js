@@ -27,6 +27,7 @@
           <span class="text"></span>\
           <span class="iconfont icon-ico-right-arrow item-right-arrow"></span>\
           <span class="iconfont icon-loading item-loading"></span>\
+          <span class="iconfont icon-error"></span>\
         </a>\
       </li>'
   };
@@ -37,7 +38,7 @@
 
   // DropdownPanel
   var DropdownPanel = function (data, csd) {
-    if (!data || !data.children) return;
+    if (!data || !data.children || data.children.length <= 0) return;
 
     var panel = this;
     this.selectItem = function (item, itemEl) {
@@ -87,12 +88,22 @@
     var handler = function (item, itemEl, selectItem) {
       if (csd.params.lazy && item.loaded === false) {
         itemEl.addClass('loading');
+        var itemCode = item.code || item.c;
+
+        if (panel.loadingItem) panel.loadingItem = false;
+        panel.loadingItem = itemCode;
+
         csd.loadData(item).then(function () {
-          csd.refreshPanels(item.level + 1, item);
+          if (panel.loadingItem == itemCode)
+            csd.refreshPanels(item.level + 1, item);
         }, function () {
-          itemEl.addClass('load-error');
+          if (panel.loadingItem == itemCode)
+            itemEl.addClass('load-error');
         }).always(function () {
-          panel.setItemOpened(item, itemEl);
+          if (panel.loadingItem == itemCode) {
+            panel.setItemOpened(item, itemEl);
+            panel.loadingItem = false;
+          }
           itemEl.removeClass('loading');
         });
       } else {
@@ -163,7 +174,7 @@
     var csd = this;
     params = params || {};
     for (var def in DEF_OPTS) if (typeof params[def] === 'undefined') params[def] = DEF_OPTS[def];
-    csd.params = params, csd.initialized = false, csd.selectedItems = [];
+    csd.params = params, csd.initialized = false, csd.selectedItems = [], csd.readonly = false;
     if (csd.params.value instanceof Array) csd.selectedItems = [];
 
     // initBtn
@@ -260,6 +271,7 @@
 
     // open
     csd.open = function () {
+      if (csd.readonly) return;
       csd.el.toggleClass('open');
 
       $.each(csd.panels, function (i, panel) {
@@ -274,9 +286,29 @@
 
     // clearValue
     csd.clearValue = function () {
+      if (csd.readonly) return;
+
       csd.selectedItems = [];
       csd.el.find('.dropdown-menu li a').removeClass('selected');
       updateBtnText(csd.params.placeHolder);
+    };
+
+    // setReadonly
+    csd.setReadonly = function (readonly) {
+      readonly = readonly !== false;
+      csd.readonly = readonly;
+      if (readonly) {
+        csd.el.addClass('readonly');
+        csd.btn.addClass('disabled');
+      } else {
+        csd.el.removeClass('readonly');
+        csd.btn.removeClass('disabled');
+      }
+    };
+
+    // isReadonly
+    csd.isReadonly = function () {
+      return csd.readonly;
     };
 
     // loadData
@@ -306,8 +338,14 @@
     };
 
     csd.data = {childMap: {}, children: [], loaded: false, level: 0}, csd.panels = [];
-    csd.cols = [], csd.el = $(TPLS.containerTpl).insertAfter(params.el), params.el.remove(), params.el = csd.el;
+    csd.cols = [], csd.el = $(TPLS.containerTpl);
+    if (csd.params.replace) {
+      csd.el.insertAfter(params.el);
+      params.el.remove();
+    } else csd.el.appendTo(params.el);
+    params.el = csd.el;
     initBtn();
+    if (csd.params.readonly) csd.setReadonly(true);
 
     csd.loadData().always(function () {
       csd.refreshPanels(1, csd.data);

@@ -110,11 +110,17 @@ $primary-color: #337ab7;
         }
 
         .item-loading {
-          visibility: hidden;
+          display: none;
+
           &:before {
             display: inline-block;
             animation: 1s linear infinite loadingCircle;
           }
+        }
+
+        .icon-error {
+          display: none;
+          color: #c7254e;
         }
       }
 
@@ -124,12 +130,21 @@ $primary-color: #337ab7;
         }
 
         .item-loading {
-          visibility: visible;
+          display: inline;
+        }
+      }
+
+      &.load-error {
+        .item-loading, .item-right-arrow {
+          display: none;
+        }
+        .icon-error {
+          display: inline;
         }
       }
 
       &.no-child a .item-right-arrow {
-        visibility: hidden;
+        display: none;
       }
     }
   }
@@ -170,6 +185,19 @@ $primary-color: #337ab7;
     }
     .icon-arrow-down {
       visibility: visible;
+    }
+  }
+
+  &.readonly {
+    > .dropdown-toggle {
+      &.selected:hover {
+        .icon-cross {
+          visibility: hidden;
+        }
+      }
+      .caret {
+        visibility: hidden;
+      }
     }
   }
 }
