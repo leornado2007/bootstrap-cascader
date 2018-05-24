@@ -10,6 +10,7 @@
     lazy: false,
     openOnHover: false,
     onChange: $.noop,
+    onSelect: $.noop,
     selectable: function (item) {
       return item && item.loaded && (!item.children || item.children.length <= 0 || item.selectable);
     }
@@ -135,14 +136,14 @@
       var itemName = itemData.name || itemData.n, itemCode = itemData.code || itemData.c;
       itemEl.data("cascaderItem", item).attr('code', itemCode).attr('title', itemName).find('.text').text(itemName);
 
-      itemEl.bind('selectItem click', function () {
+      itemEl.on('selectItem click', function () {
         handler(item, itemEl, true);
-      }).bind('openDropdown', function () {
+      }).on('openDropdown', function () {
         handler(item, itemEl);
       });
 
       if (csd.params.openOnHover) {
-        itemEl.bind('mouseover', function () {
+        itemEl.on('mouseover', function () {
           if (csd.openTimeout) clearTimeout(csd.openTimeout);
           csd.openTimeout = setTimeout(function () {
             handler(item, itemEl);
@@ -212,6 +213,14 @@
       else csd.btn.addClass('bs-placeholder').removeClass('selected');
     };
 
+    // htmlClickHandler
+    var htmlClickHandler = function (e) {
+      if (!csd.el.hasClass('open')) return;
+      var cascader = $(e.target).parents('.bootstrap-cascader');
+      if (cascader.size() == 0) csd.close();
+      else if (cascader[0] != csd.el[0]) csd.close();
+    };
+
     // setValue
     csd.setValue = function (value) {
       csd.clearValue();
@@ -223,7 +232,8 @@
       });
       updateBtnText(names.join(csd.params.splitChar));
       csd.updateViewBySelected();
-      csd.params.onChange(oldSelectedItems, value);
+
+      csd.tryFireOnChange(oldSelectedItems, csd.getValue());
     };
 
     // refreshPanels
@@ -234,6 +244,14 @@
       });
 
       new DropdownPanel(data, csd);
+    };
+
+    // destroy
+    csd.destroy = function () {
+      $.each(csd.panels, function (i, panel) {
+        panel.destroy();
+      });
+      $('html').off('click', htmlClickHandler);
     };
 
     // selectItem
@@ -254,7 +272,24 @@
       updateBtnText(names.join(csd.params.splitChar));
       csd.close();
 
-      csd.params.onChange(oldSelectedItems, csd.getValue());
+      csd.tryFireOnChange(oldSelectedItems, csd.getValue());
+    };
+
+    // tryFireOnChange
+    csd.tryFireOnChange = function (oldItems, newItems) {
+      var fire = true;
+      if (oldItems != newItems && oldItems.length == newItems.length) {
+        var allCodesSame = true;
+        $.each(oldItems, function (i, oldItem) {
+          var oldItemCode = oldItem.code || oldItem.c, newItem = newItems[i], newItemCode = newItem.code || newItem.c;
+          if (oldItemCode != newItemCode) {
+            allCodesSame = false;
+            return false;
+          }
+        });
+        if (allCodesSame) fire = false;
+      }
+      if (fire) csd.params.onChange(oldItems, newItems);
     };
 
     // close
@@ -342,7 +377,7 @@
     if (csd.params.dropUp) csd.el.addClass('dropup');
     if (csd.params.replace) {
       csd.el.insertAfter(params.el);
-      params.el.remove();
+      params.el.hide();
     } else csd.el.appendTo(params.el);
     params.el = csd.el;
     initBtn();
@@ -353,12 +388,7 @@
       if (csd.params.value) csd.setValue(csd.params.value);
     });
 
-    $('html').click(function (e) {
-      if (!csd.el.hasClass('open')) return;
-      var cascader = $(e.target).parents('.bootstrap-cascader');
-      if (cascader.size() == 0) csd.close();
-      else if (cascader[0] != csd.el[0]) csd.close();
-    });
+    $('html').on('click', htmlClickHandler);
   };
 
   $.fn.bsCascader = function (params) {

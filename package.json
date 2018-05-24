@@ -6,6 +6,10 @@
   "scripts": {},
   "author": "leornado <leornado@126.com>",
   "homepage": "https://github.com/leornado2007/bootstrap-cascader.git",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/leornado2007/bootstrap-cascader.git"
+  },
   "license": "MIT",
   "keywords": [
     "bootstrap",
@@ -21,7 +25,6 @@
     "gulp-connect": "^5.5.0",
     "gulp-html-replace": "^1.6.2",
     "gulp-htmlmin": "^4.0.0",
-    "gulp-load-plugins": "^1.5.0",
     "gulp-open": "^3.0.1",
     "gulp-rename": "^1.2.3",
     "gulp-replace": "^1.0.0",
