@@ -200,7 +200,7 @@
         csd.open();
       }).appendTo(csd.el);
       csd.btn.children('.icon-cross').click(function (e) {
-        csd.clearValue();
+        csd.clearValue(true);
         e.preventDefault();
         e.stopPropagation();
       });
@@ -338,12 +338,14 @@
     };
 
     // clearValue
-    csd.clearValue = function () {
+    csd.clearValue = function (fireEvent) {
       if (csd.readonly) return;
 
       csd.selectedItems = [];
       csd.el.find('.dropdown-menu li a').removeClass('selected');
       updateBtnText(csd.params.placeHolder);
+
+      if (fireEvent) csd.tryFireOnChange('bs.cascader.clear');
     };
 
     // setReadonly
