@@ -94,7 +94,7 @@
 
     var handler = function (item, itemEl, selectItem) {
       if (csd.params.lazy && item.loaded === false) {
-        itemEl.addClass('loading');
+        itemEl.addClass('bs-loading');
         var itemCode = item.code || item.c;
 
         if (panel.loadingItem) panel.loadingItem = false;
@@ -111,7 +111,7 @@
             panel.setItemOpened(item, itemEl);
             panel.loadingItem = false;
           }
-          itemEl.removeClass('loading');
+          itemEl.removeClass('bs-loading');
         });
       } else {
         csd.refreshPanels(item.level + 1, item);
