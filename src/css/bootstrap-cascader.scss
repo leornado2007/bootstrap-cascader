@@ -165,10 +165,6 @@ $primary-color: #337ab7;
     }
   }
 
-  &.form-control:not([class*=col-]) {
-    width: 100%
-  }
-
   .has-error & .dropdown-toggle, .error & .dropdown-toggle {
     border-color: $color-red-error;
   }
@@ -202,6 +198,44 @@ $primary-color: #337ab7;
       .caret {
         visibility: hidden;
       }
+    }
+  }
+
+  &.form-control {
+    margin-bottom: 0;
+    padding: 0;
+    border: none;
+
+    &:not([class*="col-"]) {
+      width: 100%;
+    }
+
+    &.input-group-btn {
+      z-index: auto;
+
+      &:not(:first-child):not(:last-child) {
+        > .btn {
+          border-radius: 0;
+        }
+      }
+    }
+  }
+
+  &.btn-group {
+    .form-group-lg &.form-control,
+    .form-group-sm &.form-control {
+      padding: 0;
+
+      .dropdown-toggle {
+        height: 100%;
+        font-size: inherit;
+        line-height: inherit;
+        border-radius: inherit;
+      }
+    }
+
+    .form-inline & .form-control {
+      width: 100%;
     }
   }
 }

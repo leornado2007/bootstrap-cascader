@@ -61,7 +61,7 @@ gulp.task('js', function (cb) {
   pump(jsTask(), cb);
 });
 
-gulp.task('fonts', function (cb) {
+gulp.task('fonts', function () {
   gulp.src('bower_components/bootstrap/fonts/*').pipe(gulp.dest(siteDir + '/fonts'));
   gulp.src('resources/iconfont/*.{eot,svg,ttf,woff}')
       .pipe(rename(function (path) {

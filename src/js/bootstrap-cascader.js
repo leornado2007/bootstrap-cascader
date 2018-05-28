@@ -4,6 +4,7 @@
   // DEF_OPTS
   var DEF_OPTS = {
     splitChar: ' ',
+    cls: '',
     btnCls: 'btn-default',
     placeHolder: '请选择',
     dropUp: false,
@@ -18,7 +19,7 @@
 
   // TPLS
   var TPLS = {
-    containerTpl: '<div class="btn-group bootstrap-cascader"></div>',
+    containerTpl: '<div class="btn-group bootstrap-cascader form-control"></div>',
     btnTpl: '<button class="btn dropdown-toggle bs-placeholder" type="button">\
         <span class="filter-option pull-left"></span> <span class="caret icon-arrow-down"></span> <span class="icon-cross iconfont icon-jiaochacross78"></span>\
       </button>',
@@ -416,7 +417,7 @@
     };
 
     csd.data = {childMap: {}, children: [], loaded: false, level: 0}, csd.panels = [];
-    csd.cols = [], csd.el = $(TPLS.containerTpl).addClass(csd.params.cls || '');
+    csd.cols = [], csd.el = $(TPLS.containerTpl).addClass(csd.params.cls);
     if (csd.params.dropUp) csd.el.addClass('dropup');
     if (csd.params.replace) {
       csd.el.insertAfter(params.el);
