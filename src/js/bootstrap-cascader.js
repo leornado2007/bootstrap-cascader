@@ -89,6 +89,7 @@
     };
 
     this.destroy = function () {
+      panel.panelEl.children('li').removeData('cascaderItem');
       panel.panelEl.remove();
     };
 
@@ -268,6 +269,7 @@
         panel.destroy();
       });
       $('html').off('click', htmlClickHandler);
+      csd.params.el.removeData("bsCascader");
     };
 
     // selectItem
