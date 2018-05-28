@@ -416,7 +416,7 @@
     };
 
     csd.data = {childMap: {}, children: [], loaded: false, level: 0}, csd.panels = [];
-    csd.cols = [], csd.el = $(TPLS.containerTpl);
+    csd.cols = [], csd.el = $(TPLS.containerTpl).addClass(csd.params.cls || '');
     if (csd.params.dropUp) csd.el.addClass('dropup');
     if (csd.params.replace) {
       csd.el.insertAfter(params.el);

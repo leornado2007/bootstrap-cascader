@@ -165,6 +165,10 @@ $primary-color: #337ab7;
     }
   }
 
+  &.form-control:not([class*=col-]) {
+    width: 100%
+  }
+
   .has-error & .dropdown-toggle, .error & .dropdown-toggle {
     border-color: $color-red-error;
   }
