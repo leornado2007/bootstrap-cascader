@@ -77,13 +77,28 @@ $(function () {
       $('#cascaderValue4').text(JSON.stringify(newValue));
     },
     'bs.cascader.inited bs.cascader.reloaded': function () {
-      $('#cascader4Reload').removeClass('disabled');
+      $('#cascader4Btn').removeClass('disabled');
     }
   });
 
-  $('#cascader4Reload').addClass('disabled').click(function () {
+  $('#cascader4Btn').addClass('disabled').click(function () {
     $(this).addClass('disabled');
     $('#cascader4').bsCascader('reload');
+  });
+
+
+  $('#cascader5').bsCascader({
+    splitChar: ' / ',
+    lazy: true,
+    dropUp: true,
+    loadData: mockLazyLoadFn()
+  }).on('bs.cascader.inited bs.cascader.reloaded', function () {
+    $('#cascader5Btn').removeClass('disabled');
+  });
+
+  $('#cascader5Btn').click(function () {
+    $('#cascader5').bsCascader('setValue', [{"code": "8", "name": "八"}, {"code": "81", "name": "八一"},
+      {"code": "818", "name": "八一八"}, {"code": "8187", "name": "八一八七"}]);
   });
 
 });

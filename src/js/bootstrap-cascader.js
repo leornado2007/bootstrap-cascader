@@ -318,7 +318,7 @@
 
     // update view by selected
     csd.updateViewBySelected = function () {
-      if (csd.selectedItems.length > 0)
+      if (csd.selectedItems.length > 0 && csd.panels.length > 0)
         csd.panels[0].selectItemByCode(csd.selectedItems[0].code || csd.selectedItems[0].c);
     };
 
