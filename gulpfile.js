@@ -26,6 +26,7 @@ var sassTask = function (usemin) {
     sourcemaps.init(), autoprefixer({browsers: ['last 2 versions', 'ie 6-8']}),
     replace(/iconfont\.([a-z]{3})/g, name + '.$1'),
     replace(/font-family:\s*\"iconfont\"/g, 'font-family: "' + name + '"'),
+    replace(/\.iconfont\s*\{/g, '.bsfont{'),
     rename({suffix: '.min'}), sourcemaps.write('./')];
   return usemin ? tasks : tasks.concat([gulp.dest(siteDir), connect.reload()]);
 };
@@ -93,6 +94,7 @@ gulp.task('dist', ['clean-dist'], function (cb) {
       .pipe(concat(name + '.css'))
       .pipe(autoprefixer({browsers: ['last 2 versions', 'ie 6-8']}))
       .pipe(replace(/iconfont\.([a-z]{3})/g, name + '.$1'))
+      .pipe(replace(/\.iconfont\s*\{/g, '.bsfont{'))
       .pipe(replace(/font-family:\s*\"iconfont\"/g, 'font-family: "' + name + '"'))
       .pipe(rename({suffix: '.min'}))
       .pipe(sourcemaps.write('./'))

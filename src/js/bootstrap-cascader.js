@@ -21,15 +21,15 @@
   var TPLS = {
     containerTpl: '<div class="btn-group bootstrap-cascader form-control"></div>',
     btnTpl: '<button class="btn dropdown-toggle bs-placeholder" type="button">\
-        <span class="filter-option pull-left"></span> <span class="caret icon-arrow-down"></span> <span class="icon-cross iconfont icon-jiaochacross78"></span>\
+        <span class="filter-option pull-left"></span> <span class="caret icon-arrow-down"></span> <span class="icon-cross bsfont icon-jiaochacross78"></span>\
       </button>',
     dropdownTpl: '<ul class="dropdown-menu"></ul>',
     dropdownItemTpl: '<li>\
         <a href="javascript:">\
           <span class="text"></span>\
-          <span class="iconfont icon-ico-right-arrow item-right-arrow"></span>\
-          <span class="iconfont icon-loading item-loading"></span>\
-          <span class="iconfont icon-error"></span>\
+          <span class="bsfont icon-ico-right-arrow item-right-arrow"></span>\
+          <span class="bsfont icon-loading item-loading"></span>\
+          <span class="bsfont icon-error"></span>\
         </a>\
       </li>'
   };
