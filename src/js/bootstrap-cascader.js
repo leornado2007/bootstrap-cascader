@@ -338,14 +338,14 @@
     };
 
     // clearValue
-    csd.clearValue = function (fireEvent) {
+    csd.clearValue = function (fire) {
       if (csd.readonly) return;
 
       csd.selectedItems = [];
       csd.el.find('.dropdown-menu li a').removeClass('selected');
       updateBtnText(csd.params.placeHolder);
 
-      if (fireEvent) csd.tryFireOnChange('bs.cascader.clear');
+      if (fire) csd.params.el.trigger('bs.cascader.clear');
     };
 
     // setReadonly
