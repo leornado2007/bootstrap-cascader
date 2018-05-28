@@ -31,7 +31,7 @@ $(function () {
     loadData: function (openedItems, callback) {
       callback(localData);
     }
-  }).on('bs.cascader.change', function (oldValue, newValue) {
+  }).on('bs.cascader.change', function (e, oldValue, newValue) {
     $('#cascaderValue2').text(JSON.stringify(newValue));
   });
 
@@ -73,7 +73,7 @@ $(function () {
       {"code": "818", "name": "八一八"}, {"code": "8187", "name": "八一八七"}],
     loadData: mockLazyLoadFn()
   }).on({
-    'bs.cascader.change bs.cascader.select': function (oldValue, newValue) {
+    'bs.cascader.change bs.cascader.select': function (e, oldValue, newValue) {
       $('#cascaderValue4').text(JSON.stringify(newValue));
     },
     'bs.cascader.inited bs.cascader.reloaded': function () {

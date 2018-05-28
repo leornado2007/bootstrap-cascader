@@ -144,7 +144,8 @@ $primary-color: #337ab7;
       }
 
       &.no-child a .item-right-arrow {
-        display: none;
+        display: inline;
+        visibility: hidden;
       }
     }
   }
