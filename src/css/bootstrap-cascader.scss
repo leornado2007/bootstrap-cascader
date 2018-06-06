@@ -114,7 +114,7 @@ $primary-color: #337ab7;
 
           &:before {
             display: inline-block;
-            animation: 1s linear infinite loadingCircle;
+            animation: 1s linear infinite bsCascaderLoadingCircle;
           }
         }
 
@@ -241,7 +241,7 @@ $primary-color: #337ab7;
   }
 }
 
-@keyframes loadingCircle {
+@keyframes bsCascaderLoadingCircle {
   0% {
     transform-origin: 50% 50%;
     transform: rotate(0deg)

@@ -21,15 +21,15 @@
   var TPLS = {
     containerTpl: '<div class="btn-group bootstrap-cascader form-control"></div>',
     btnTpl: '<button class="btn dropdown-toggle bs-placeholder" type="button">\
-        <span class="filter-option pull-left"></span> <span class="caret icon-arrow-down"></span> <span class="icon-cross bsfont icon-jiaochacross78"></span>\
+        <span class="filter-option pull-left"></span> <span class="caret icon-arrow-down"></span> <span class="icon-cross bscascader-font icon-jiaochacross78"></span>\
       </button>',
     dropdownTpl: '<ul class="dropdown-menu"></ul>',
     dropdownItemTpl: '<li>\
         <a href="javascript:">\
           <span class="text"></span>\
-          <span class="bsfont icon-ico-right-arrow item-right-arrow"></span>\
-          <span class="bsfont icon-loading item-loading"></span>\
-          <span class="bsfont icon-error"></span>\
+          <span class="bscascader-font icon-ico-right-arrow item-right-arrow"></span>\
+          <span class="bscascader-font icbscascader-fonton-loading item-loading"></span>\
+          <span class="bscascader-font icon-error"></span>\
         </a>\
       </li>'
   };
@@ -91,6 +91,13 @@
     this.destroy = function () {
       panel.panelEl.children('li').removeData('cascaderItem');
       panel.panelEl.remove();
+    };
+
+    this.rePosition = function (lastPanel) {
+      if (!lastPanel) return;
+
+      var lastPanelEl = lastPanel.panelEl, lastPanelLeft = Number((lastPanelEl.css('left') || '').replace('px', ''));
+      panel.panelEl.css({left: lastPanelLeft + lastPanelEl.outerWidth()})
     };
 
     var handler = function (item, itemEl, selectItem) {
@@ -329,8 +336,11 @@
       if (csd.readonly) return;
       csd.el.toggleClass('open');
 
+      var lastPanel;
       $.each(csd.panels, function (i, panel) {
+        panel.rePosition(lastPanel);
         panel.scrollToOpened();
+        lastPanel = panel;
       });
     };
 
