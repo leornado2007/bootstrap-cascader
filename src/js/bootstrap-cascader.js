@@ -456,14 +456,14 @@
       var $this = $(this);
 
       var bsCascader = $this.data("bsCascader");
-      if (!bsCascader) {
+      if (!bsCascader && params != 'destroy') {
         params = $.extend({
           el: $this, value: $this.val() ? $this.val().split(params.splitChar || ' ') : ''
         }, params);
         bsCascader = new Cascader(params);
         $this.data("bsCascader", bsCascader);
       }
-      if (typeof params === typeof "a")
+      if (bsCascader && typeof params === typeof "")
         bsCascader[params].apply(bsCascader, Array.prototype.slice.call(args, 1));
     });
   }
