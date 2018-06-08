@@ -1,6 +1,6 @@
 {
   "name": "bootstrap-cascader",
-  "version": "0.0.1",
+  "version": "0.0.20",
   "description": "bootstrap jquery cascade selector",
   "main": "dist/js/bootstrap-cascader.js",
   "scripts": {},
