@@ -208,6 +208,7 @@
         csd.open();
       }).appendTo(csd.el);
       csd.btn.children('.icon-cross').click(function (e) {
+        if (csd.isReadonly()) return;
         csd.clearValue(true);
         e.preventDefault();
         e.stopPropagation();
@@ -333,7 +334,7 @@
 
     // open
     csd.open = function () {
-      if (csd.readonly) return;
+      if (csd.isReadonly()) return;
       csd.el.toggleClass('open');
 
       var lastPanel;
@@ -351,8 +352,6 @@
 
     // clearValue
     csd.clearValue = function (fire) {
-      if (csd.readonly) return;
-
       csd.selectedItems = [];
       csd.el.find('.dropdown-menu li a').removeClass('selected');
       updateBtnText(csd.params.placeHolder);
