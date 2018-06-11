@@ -84,7 +84,7 @@ $(function () {
   });
 
   var NUMS = '零一二三四五六七八九'.split('');
-  var createMockData = function (openedItems) {
+  var createMockData = function (openedItems, justLastLevelSelectable) {
     var level = openedItems.length + 1, data = [];
     if (level > 4) return data;
 
@@ -99,14 +99,15 @@ $(function () {
       var item = {c: parentCode + i, n: parentName + num};
       if (level == 4) item.hasChild = false;
       data.push(item);
+      item.selectable = !justLastLevelSelectable || level == 4;
     });
     return data;
   };
-  var mockLazyLoadFn = function () {
+  var mockLazyLoadFn = function (csdId, justLastLevelSelectable) {
     return function (openedItems, callback) {
-      console.log('------mockLazyLoadFn------');
+      console.log('------mockLazyLoadFn------', csdId);
       setTimeout(function () {
-        callback(createMockData(openedItems));
+        callback(createMockData(openedItems, justLastLevelSelectable));
       }, 500);
     }
   };
@@ -116,7 +117,7 @@ $(function () {
     splitChar: ' / ',
     openOnHover: true,
     lazy: true,
-    loadData: mockLazyLoadFn()
+    loadData: mockLazyLoadFn('cascader3')
   });
 
   // cascader4
@@ -131,7 +132,7 @@ $(function () {
         dropUp: true,
         value: [{"code": "8", "name": "八"}, {"code": "81", "name": "八一"},
           {"code": "818", "name": "八一八"}, {"code": "8187", "name": "八一八七"}],
-        loadData: mockLazyLoadFn()
+        loadData: mockLazyLoadFn('cascader4')
       });
 
   $('#cascader4Btn').addClass('disabled').click(function () {
@@ -146,7 +147,7 @@ $(function () {
         splitChar: ' / ',
         lazy: true,
         dropUp: true,
-        loadData: mockLazyLoadFn()
+        loadData: mockLazyLoadFn('cascader5')
       });
   $('#cascader5Btn').click(function () {
     $('#cascader5').bsCascader('setValue', [{"code": "8", "name": "八"}, {"code": "81", "name": "八一"},
@@ -161,11 +162,13 @@ $(function () {
   $('#cascader6')
       .on($.extend(getListeners('cascader6', 'value6'), {}))
       .bsCascader({
+        value: [{"code": "8", "name": "八"}, {"code": "81", "name": "八一"},
+          {"code": "818", "name": "八一八"}, {"code": "8187", "name": "八一八七"}],
         forceSelect: true,
         splitChar: ' / ',
         lazy: true,
         dropUp: true,
-        loadData: mockLazyLoadFn()
+        loadData: mockLazyLoadFn('cascader6')
       });
   $('#cascader6Btn').click(function () {
     $('#cascader6').bsCascader('setValue', [{"code": "8", "name": "八"}, {"code": "81", "name": "八一"},
@@ -180,17 +183,20 @@ $(function () {
   $('#cascader7')
       .on($.extend(getListeners('cascader7', 'value7'), {}))
       .bsCascader({
+        value: [{"code": "8", "name": "八"}, {"code": "81", "name": "八一"},
+          {"code": "818", "name": "八一八"}],
         forceSelect: true,
         splitChar: ' / ',
         lazy: true,
         dropUp: true,
-        loadData: mockLazyLoadFn(),
+        loadData: mockLazyLoadFn('cascader7', true),
         loadDataByTreePath: function (items, callback) {
+          console.log('------loadDataByTreePath------ cascader7');
           setTimeout(function () {
             var data = [], checkedItems = [], lastMatchedItem, allMatched = true;
             for (var i = 0; i < items.length; i++) {
               var item = items[i], itemCode = item.code || item.c, matchedItem = false;
-              var mockData = createMockData(checkedItems);
+              var mockData = createMockData(checkedItems, true);
               $.each(mockData, function (j, mockItem) {
                 var mockItemCode = mockItem.code || mockItem.c;
                 if (mockItemCode == itemCode) {

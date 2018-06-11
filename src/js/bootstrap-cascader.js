@@ -14,7 +14,8 @@
     openOnHoverDelay: 100,
     openOnHoverDelay4Lazy: 200,
     isSelectable: function (item) {
-      return item && item.loaded && (!item.children || item.children.length <= 0 || item.selectable);
+      return item && (item.selectable === true ||
+          item.loaded && (!item.children || item.children.length <= 0) && item.selectable !== false);
     }
   };
 
@@ -44,10 +45,6 @@
     if (!data || !data.children || data.children.length <= 0) return;
 
     var panel = this;
-    this.selectItem = function (item, itemEl) {
-      var selectable = csd.params.isSelectable.call(csd, item);
-      if (selectable) csd.selectItem(itemEl);
-    };
 
     this.setItemOpened = function (item, itemEl) {
       panel.panelEl.children('li').removeClass('open');
@@ -126,7 +123,7 @@
       } else {
         csd.refreshPanels(item.level + 1, item, setValueCallback);
         panel.setItemOpened(item, itemEl);
-        if (selectItem) panel.selectItem(item, itemEl);
+        if (selectItem) csd.selectItem(item, itemEl);
       }
     };
 
@@ -156,7 +153,10 @@
       itemEl.data("cascaderItem", item).attr('code', itemCode).attr('title', itemName).find('.text').text(itemName);
 
       itemEl.on({
-        'selectItem click': function (e, setValueCallback) {
+        'selectItem': function (e, setValueCallback) {
+          handler(item, itemEl, false, setValueCallback);
+        },
+        'click': function (e, setValueCallback) {
           handler(item, itemEl, true, setValueCallback);
         },
         'openDropdown': function () {
@@ -186,8 +186,10 @@
               $.each(csd.selectedItems, function (j, selectedItem) {
                 csd.panels[j].setSelected(selectedItem, j < csd.selectedItems.length - 1);
               });
-            csd.fireOnInit(), csd.reloaded();
-            if (setValueCallback) setValueCallback(true);
+            if (setValueCallback) setValueCallback(item);
+            else {
+              csd.fireOnInit(), csd.reloaded();
+            }
           }
         }
       }
@@ -196,7 +198,7 @@
     if (csd.selectedItems.length > data.level && !hasMatchedChildren && csd.params.lazy) {
       if ((!csd.isInited || csd.reloading))
         csd.isInited ? csd.reloaded() : csd.fireOnInit();
-      if (setValueCallback) setValueCallback(false);
+      if (setValueCallback) setValueCallback();
     }
   };
 
@@ -235,6 +237,7 @@
           parent.children.push(itemData);
           parent.childMap[itemCode] = itemData;
         } else itemData.loaded = !isLazy || (children && children.length > 0) || item.hasChild === false;
+        if (item.selectable !== undefined) itemData.selectable = item.selectable;
         if (children && children.length > 0) convertData2Col(children, itemData);
       });
     };
@@ -270,8 +273,8 @@
             csd.selectedItems.push({code: item.code || item.c, name: item.name || item.n});
             names.push(item.name || item.n);
           });
-          csd.updateViewBySelected(function (allMatched) {
-            if (allMatched) {
+          csd.updateViewBySelected(function (item) {
+            if (item && csd.params.isSelectable(item)) {
               updateBtnText(names.join(csd.params.splitChar));
             } else csd.clearValue(false);
             opts.fireInit ? csd.fireOnInit() : csd.fireOnChange(oldSelectedItems, csd.getValue());
@@ -318,12 +321,15 @@
     };
 
     // selectItem
-    csd.selectItem = function (itemEl) {
+    csd.selectItem = function (item, itemEl) {
+      if (!csd.params.isSelectable.call(csd, item)) return;
+
       csd.el.find('li a').removeClass('selected');
       itemEl.children('a').addClass('selected');
       csd.el.find('li.open a').addClass('selected');
 
-      var item = itemEl.data('cascaderItem'), names = [], oldSelectedItems = csd.getValue();
+      item = item || itemEl.data('cascaderItem');
+      var names = [], oldSelectedItems = csd.getValue();
       csd.selectedItems = [];
       while (item.parent) {
         var itemData = item.originData, code = itemData.code || itemData.c, name = itemData.name || itemData.n;
@@ -333,7 +339,7 @@
       }
 
       updateBtnText(names.join(csd.params.splitChar));
-      csd.close();
+      csd.close(false);
 
       var newItems = csd.getValue();
       csd.fireOnChange(oldSelectedItems, newItems);
@@ -359,9 +365,9 @@
     };
 
     // close
-    csd.close = function () {
+    csd.close = function (updateViewBySelected) {
       csd.el.removeClass('open');
-      csd.updateViewBySelected();
+      if (updateViewBySelected !== false) csd.updateViewBySelected();
     };
 
     // update view by selected
