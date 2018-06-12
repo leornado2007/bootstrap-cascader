@@ -260,10 +260,11 @@
     // setValue
     csd.setValue = function (value, opts) {
       opts = $.extend({onSetFinish: $.noop}, opts || {});
-      var names = [], oldSelectedItems = csd.getValue();
+      var names = [], oldSelectedItems = csd.getValue(), changeFired;
       csd.clearValue();
       if (!value || !(value instanceof Array) || value.length <= 0) {
-        opts.fireInit ? csd.fireOnInit() : csd.fireOnChange(oldSelectedItems, csd.getValue());
+        opts.fireInit ? csd.fireOnInit() : changeFired = csd.fireOnChange(oldSelectedItems, csd.getValue());
+        opts.onSetFinish.call(csd, changeFired);
         return;
       }
 
@@ -277,16 +278,16 @@
             if (item && csd.params.isSelectable(item)) {
               updateBtnText(names.join(csd.params.splitChar));
             } else csd.clearValue(false);
-            opts.fireInit ? csd.fireOnInit() : csd.fireOnChange(oldSelectedItems, csd.getValue());
-            opts.onSetFinish.call(csd);
+            opts.fireInit ? csd.fireOnInit() : changeFired = csd.fireOnChange(oldSelectedItems, csd.getValue());
+            opts.onSetFinish.call(csd, changeFired);
           });
         };
         if (csd.params.lazy && csd.params.loadDataByTreePath) {
           csd.loadDataByTreePath(value).then(function () {
             updateViewByLayzData();
           }, function () {
-            opts.fireInit ? csd.fireOnInit() : csd.fireOnChange(oldSelectedItems, csd.getValue());
-            opts.onSetFinish.call(csd);
+            opts.fireInit ? csd.fireOnInit() : changeFired = csd.fireOnChange(oldSelectedItems, csd.getValue());
+            opts.onSetFinish.call(csd, changeFired);
           });
         } else updateViewByLayzData();
       } else {
@@ -296,8 +297,8 @@
         });
         updateBtnText(names.join(csd.params.splitChar));
         csd.updateViewBySelected();
-        opts.fireInit ? csd.fireOnInit() : csd.fireOnChange(oldSelectedItems, csd.getValue());
-        opts.onSetFinish.call(csd);
+        opts.fireInit ? csd.fireOnInit() : changeFired = csd.fireOnChange(oldSelectedItems, csd.getValue());
+        opts.onSetFinish.call(csd, changeFired);
       }
     };
 
@@ -362,6 +363,7 @@
         if (allItemsSame) fire = false;
       }
       if (fire) csd.params.el.trigger('bs.cascader.change', [oldItems, newItems]);
+      return fire;
     };
 
     // close
