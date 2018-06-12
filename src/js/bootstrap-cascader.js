@@ -196,8 +196,8 @@
     });
 
     if (csd.selectedItems.length > data.level && !hasMatchedChildren && csd.params.lazy) {
-      if ((!csd.isInited || csd.reloading))
-        csd.isInited ? csd.reloaded() : csd.fireOnInit();
+      if ((!csd.isInitialized || csd.reloading))
+        csd.isInitialized ? csd.reloaded() : csd.fireOnInit();
       if (setValueCallback) setValueCallback();
     }
   };
@@ -443,9 +443,9 @@
 
     // fireOnInit
     csd.fireOnInit = function () {
-      if (csd.isInited) return;
+      if (csd.isInitialized) return;
 
-      csd.isInited = true;
+      csd.isInitialized = true;
       csd.params.el.trigger('bs.cascader.inited');
     };
 
