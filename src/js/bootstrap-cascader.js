@@ -268,7 +268,7 @@
         return;
       }
 
-      if (csd.params.forceSelect) {
+        if (csd.params.forceSelect) {
         var updateViewByLayzData = function () {
           $.each(value, function (i, item) {
             csd.selectedItems.push({code: item.code || item.c, name: item.name || item.n});
