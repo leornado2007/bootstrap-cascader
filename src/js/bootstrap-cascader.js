@@ -56,11 +56,11 @@
     };
 
     this.selectItemByCode = function (code, setValueCallback) {
-      panel.panelEl.children('li[code=' + enHtml(code) + ']').trigger('selectItem', [setValueCallback]);
+      panel.panelEl.children('li[code="' + enHtml(code) + '"]').trigger('selectItem', [setValueCallback]);
     };
 
     this.setSelected = function (item, setOpen) {
-      var itemEl = panel.panelEl.children('li[code=' + enHtml(item.code || item.c) + ']');
+      var itemEl = panel.panelEl.children('li[code="' + enHtml(item.code || item.c) + '"]');
       itemEl.children('a').addClass('selected');
       if (setOpen) panel.setItemOpened(item, itemEl);
       panel.scrollToOpened();
