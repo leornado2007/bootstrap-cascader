@@ -1,6 +1,12 @@
 (function ($) {
   'use strict';
 
+  // CLS
+  var CLS = {
+    cascaderItem: 'bootstrap-cascader-item',
+    cascaderPanel: 'bootstrap-cascader-panel',
+  };
+
   // DEF_OPTS
   var DEF_OPTS = {
     forceSelect: false,
@@ -14,8 +20,14 @@
     openOnHoverDelay: 100,
     openOnHoverDelay4Lazy: 200,
     isSelectable: function (item) {
-      return item && (item.selectable === true ||
-          item.loaded && (!item.children || item.children.length <= 0) && item.selectable !== false);
+      return item && (
+        item.selectable === true ||
+        item.loaded && (
+          !item.children ||
+          item.children.length <= 0
+        ) &&
+        item.selectable !== false
+      );
     }
   };
 
@@ -25,8 +37,8 @@
     btnTpl: '<button class="btn dropdown-toggle bs-placeholder" type="button">\
         <span class="filter-option pull-left"></span> <span class="caret icon-arrow-down"></span> <span class="icon-cross bscascader-font icon-jiaochacross78"></span>\
       </button>',
-    dropdownTpl: '<ul class="dropdown-menu"></ul>',
-    dropdownItemTpl: '<li>\
+    dropdownTpl: '<ul class="dropdown-menu ' + CLS.cascaderPanel + '"></ul>',
+    dropdownItemTpl: '<li class="' + CLS.cascaderItem + '">\
         <a href="javascript:">\
           <span class="text"></span>\
           <span class="bscascader-font icon-ico-right-arrow item-right-arrow"></span>\
@@ -52,7 +64,7 @@
     this.setItemOpened = function (item, itemEl) {
       panel.panelEl.children('li').removeClass('open');
       itemEl.addClass('open');
-      if (item.loaded && item.children.length == 0) itemEl.addClass('no-child');
+      if (item.loaded && item.children.length === 0) itemEl.addClass('no-child');
     };
 
     this.selectItemByCode = function (code, setValueCallback) {
@@ -102,7 +114,7 @@
       panel.panelEl.css({left: lastPanelLeft + lastPanelEl.outerWidth()})
     };
 
-    var handler = function (item, itemEl, selectItem, setValueCallback) {
+    this.handler = function (item, itemEl, selectItem, setValueCallback) {
       if (csd.params.lazy && item.loaded === false) {
         itemEl.addClass('bs-loading');
         var itemCode = item.code || item.c;
@@ -111,13 +123,13 @@
         panel.loadingItem = itemCode;
 
         csd.loadData(item).then(function () {
-          if (panel.loadingItem == itemCode)
+          if (panel.loadingItem === itemCode)
             csd.refreshPanels(item.level + 1, item, setValueCallback);
         }, function () {
-          if (panel.loadingItem == itemCode)
+          if (panel.loadingItem === itemCode)
             itemEl.addClass('load-error');
         }).always(function () {
-          if (panel.loadingItem == itemCode) {
+          if (panel.loadingItem === itemCode) {
             panel.setItemOpened(item, itemEl);
             panel.loadingItem = false;
           }
@@ -131,6 +143,7 @@
     };
 
     panel.panelEl = $(TPLS.dropdownTpl).appendTo(csd.el), panel.data = data;
+    panel.panelEl.data('dropdownPanel', panel);
 
     // set panel position
     var lastPanel = csd.panels[csd.panels.length - 1];
@@ -155,15 +168,18 @@
       var itemName = itemData.name || itemData.n, itemCode = itemData.code || itemData.c;
       itemEl.data("cascaderItem", item).attr('code', itemCode).attr('title', itemName).find('.text').text(itemName);
 
-      itemEl.on({
+      /*itemEl.on({
         'selectItem': function (e, setValueCallback) {
-          handler(item, itemEl, false, setValueCallback);
+          console.log('---selectItem---', setValueCallback);
+          panel.handler(item, itemEl, false, setValueCallback);
         },
         'click': function (e, setValueCallback) {
-          handler(item, itemEl, true, setValueCallback);
+          console.log('---click---', setValueCallback);
+          panel.handler(item, itemEl, true, setValueCallback);
         },
         'openDropdown': function () {
-          handler(item, itemEl);
+          console.log('---openDropdown---', setValueCallback);
+          panel.handler(item, itemEl);
         }
       });
 
@@ -171,10 +187,10 @@
         itemEl.on('mouseover', function () {
           if (csd.openTimeout) clearTimeout(csd.openTimeout);
           csd.openTimeout = setTimeout(function () {
-            handler(item, itemEl);
+            panel.handler(item, itemEl);
           }, csd.params.lazy ? csd.params.openOnHoverDelay4Lazy : csd.params.openOnHoverDelay);
         });
-      }
+      }*/
 
       if (item.loaded && (!item.children || item.children.length <= 0)) itemEl.addClass('no-child');
 
@@ -183,9 +199,9 @@
         if (panel.isMatchedSelectedItems(item, false)) {
           hasMatchedChildren = true;
           if (csd.selectedItems.length > item.level) {
-            handler(item, itemEl, false, setValueCallback);
+            panel.handler(item, itemEl, false, setValueCallback);
           } else {
-            if (csd.selectedItems.length == csd.panels.length)
+            if (csd.selectedItems.length === csd.panels.length)
               $.each(csd.selectedItems, function (j, selectedItem) {
                 csd.panels[j].setSelected(selectedItem, j < csd.selectedItems.length - 1);
               });
@@ -217,10 +233,10 @@
 
     // initBtn
     var initBtn = function () {
-      csd.btn = $(TPLS.btnTpl).addClass(params.btnCls).click(function () {
+      csd.btn = $(TPLS.btnTpl).addClass(params.btnCls).on('click', function () {
         csd.open();
       }).appendTo(csd.el);
-      csd.btn.children('.icon-cross').click(function (e) {
+      csd.btn.children('.icon-cross').on('click', function (e) {
         if (csd.isReadonly()) return;
         csd.clearValue(true);
         e.preventDefault();
@@ -514,6 +530,48 @@
       if (csd.params.value) csd.setValue(csd.params.value, {fireInit: true});
       else csd.fireOnInit();
     });
+
+    // 在父元素一次性监听，提高性能
+    $(csd.el).on('selectItem', '.' + CLS.cascaderItem, function (e, setValueCallback) {
+      var itemEl = $(e.currentTarget), item = itemEl.data('cascaderItem');
+      if (!itemEl || itemEl.length <= 0 || !item) return;
+
+      var panelEl = itemEl.closest('.' + CLS.cascaderPanel), panel = panelEl.data('dropdownPanel');
+      if (!panelEl || panelEl.length <= 0 || !panel) return;
+
+      panel.handler(item, itemEl, false, setValueCallback);
+    }).on('click', '.' + CLS.cascaderItem, function (e, setValueCallback) {
+      var itemEl = $(e.currentTarget), item = itemEl.data('cascaderItem');
+      if (!itemEl || itemEl.length <= 0 || !item) return;
+
+      var panelEl = itemEl.closest('.' + CLS.cascaderPanel), panel = panelEl.data('dropdownPanel');
+      if (!panelEl || panelEl.length <= 0 || !panel) return;
+
+      panel.handler(item, itemEl, true, setValueCallback);
+    }).on('openDropdown', '.' + CLS.cascaderItem, function (e) {
+      var itemEl = $(e.currentTarget), item = itemEl.data('cascaderItem');
+      if (!itemEl || itemEl.length <= 0 || !item) return;
+
+      var panelEl = itemEl.closest('.' + CLS.cascaderPanel), panel = panelEl.data('dropdownPanel');
+      if (!panelEl || panelEl.length <= 0 || !panel) return;
+
+      panel.handler(item, itemEl);
+    });
+
+    if (csd.params.openOnHover) {
+      $(csd.el).on('mouseover', '.' + CLS.cascaderItem, function (e) {
+        var itemEl = $(e.currentTarget), item = itemEl.data('cascaderItem');
+        if (!itemEl || itemEl.length <= 0 || !item) return;
+
+        var panelEl = itemEl.closest('.' + CLS.cascaderPanel), panel = panelEl.data('dropdownPanel');
+        if (!panelEl || panelEl.length <= 0 || !panel) return;
+
+        if (csd.openTimeout) clearTimeout(csd.openTimeout);
+        csd.openTimeout = setTimeout(function () {
+          panel.handler(item, itemEl);
+        }, csd.params.lazy ? csd.params.openOnHoverDelay4Lazy : csd.params.openOnHoverDelay);
+      });
+    }
 
     $('html').on('click', htmlClickHandler);
   };
